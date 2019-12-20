@@ -1,4 +1,5 @@
 import java.io.*;
+import java.util.ArrayList;
 class GameHelper {
     String input;
     String getUserInput(String prompt) {
@@ -13,20 +14,18 @@ class GameHelper {
     }
 }
 class DotCom {
-    int []sinkdots = new int[3];
+    ArrayList<Integer> sinkdots = new ArrayList<Integer>();
 
-    void setSinkDots(int []sinkdots) {
+    void setSinkDots(ArrayList<Integer> sinkdots) {
         this.sinkdots = sinkdots;
     }
 
     String guessYourSelf (int guess) {
-        int count = 0;
-        for (int dot: this.sinkdots) {
-            if (dot == guess) {
-                this.sinkdots[count] = -1;
-                return "hit";
-            }
-            count++;
+        int index = sinkdots.indexOf(guess);
+        if (index >= 0) {
+            sinkdots.remove(index);
+            if (sinkdots.isEmpty()) return "kill";
+            else return "hit";
         }
         return "miss";
     }
@@ -34,23 +33,27 @@ class DotCom {
 class Startgame {
     public static void main(String[] args) {
         String userGuess;
+
         GameHelper helper = new GameHelper();
+
         DotCom game = new DotCom();
-        int []dotcoms = new int[3];
-        int hits = 0;
-        dotcoms[0] = (int) (Math.random() * 10);
-        dotcoms[1] = (int) (Math.random() * 10);
-        dotcoms[2] = (int) (Math.random() * 10);
-        // System.out.println(dotcoms[0] + " " + dotcoms[1] + " " + dotcoms[2]);
+
+        ArrayList <Integer> dotcoms = new ArrayList <Integer>();
+        
+        int guesses = 0;
+        dotcoms.add((int) (Math.random() * 10));
+        dotcoms.add((int) (Math.random() * 10));
+        dotcoms.add((int) (Math.random() * 10));
         game.setSinkDots(dotcoms);
-        while (hits < 3) {
+        while (true) {
             userGuess = helper.getUserInput("Enter a Guess");
             String result = game.guessYourSelf(Integer.parseInt(userGuess));
             System.out.println(result);
-            if (result == "hit") {
-                hits++;
+            if (result == "kill") {
+                break;
             }
+            guesses++;
         }
-        System.out.println("kill");
+        System.out.println("You took " + guesses + " guesses");
     }
 }
