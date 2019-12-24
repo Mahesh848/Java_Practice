@@ -1,7 +1,7 @@
 class Grid {
     int grid[][] = new int[10][10];
     int path[][] = new int[100][2];
-    int length;
+    int length = 99999999;
     void assignTheBallLocation(int x, int y) {
         this.grid[x][y] = 1;
     }
@@ -9,7 +9,7 @@ class Grid {
         path[path_len][0] = x;
         path[path_len][1] = y;
         if (x < 10 && y < 10 && grid[x][y] == 1) {
-            if (length < path_len) {
+            if (path_len < length) {
                 length = path_len;
                 for (int i=0; i<path_len; i++) {
                     this.path[i][0] = path[i][0];
