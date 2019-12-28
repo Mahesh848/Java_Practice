@@ -53,7 +53,7 @@ class GameBoard {
         if (count == 3)
             return true;
         count = 0;
-        for (int i = 2, j = 2; i >= 0 && j >= 0; i--, j--) {
+        for (int i = 0, j = 2; i < 3 && j >= 0; i++, j--) {
             if (grid[i][j] == player) {
                 count++;
             }
@@ -63,13 +63,22 @@ class GameBoard {
         return false;
     }
 
-    boolean printTheBoard() {
-        int noOfFilledBoxes = 0;
+    boolean isTheBoardFilled() {
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                if (this.grid[i][j] == '\u0000') {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    void printTheBoard() {
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
                 System.out.print(" ");
                 if (this.grid[i][j] != '\u0000') {
-                    noOfFilledBoxes++;
                     System.out.print(this.grid[i][j]);
                 } else {
                     System.out.print(" ");
@@ -81,21 +90,14 @@ class GameBoard {
             if (i < 2)
                 System.out.println("-------------");
         }
-        if (noOfFilledBoxes == 9) {
-            return true;
-        }
-        return false;
     }
 }
 
 class Player {
     String name;
+    char letter;
 
-    Player(String name) {
-        this.name = name;
-    }
-
-    int[] enterThePositionToFill(GameBoard board) throws GridException {
+    void enterThePositionToFill(GameBoard board) throws GridException {
         Scanner in = new Scanner(System.in);
         int arr[] = new int[2];
         arr[0] = in.nextInt();
@@ -104,7 +106,7 @@ class Player {
             if (board.grid[arr[0] - 1][arr[1] - 1] != '\u0000') {
                 throw new GridException("You entered the position which is not empty");
             }
-            return arr;
+            board.fillTheBoardPosition(arr[0] - 1, arr[1] - 1, this.letter);
         } else {
             throw new GridException("You entered the position which is out of the game board");
         }
@@ -117,31 +119,36 @@ class Game {
 
         GameBoard board = new GameBoard();
         boolean isBoardFilled;
-        Player current, p1, p2;
-        String name1, name2;
+        Player currentPlayer, player1, player2;
+        player1 = new Player();
+        player2 = new Player();
 
         System.out.print("Enter player1 name: ");
-        name1 = in.next();
+        player1.name = in.next();
+
+        System.out.print("Enter player1 Char: ");
+        player1.letter = in.next().charAt(0);
+
         System.out.print("Enter player2 name: ");
-        name2 = in.next();
+        player2.name = in.next();
 
-        p1 = new Player(name1);
-        p2 = new Player(name2);
+        System.out.print("Enter player2 Char: ");
+        player2.letter = in.next().charAt(0);
 
-        current = p1;
-        char currentChar = 'X';
+        currentPlayer = player1;
 
         while (true) {
             try {
-                System.out.print(current.name + " Enter your position:  ");
-                int arr[] = current.enterThePositionToFill(board);
-                board.fillTheBoardPosition(arr[0] - 1, arr[1] - 1, currentChar);
-                isBoardFilled = board.printTheBoard();
-                if (board.checkForTheGameHoriZontally(currentChar) || board.checkForTheGameVertically(currentChar)
-                        || board.checkForTheGameDiagonally(currentChar)) {
-                    System.out.println(current.name + " won the game...!");
+                System.out.print(currentPlayer.name + " Enter your position:  ");
+                currentPlayer.enterThePositionToFill(board);
+                board.printTheBoard();
+                if (board.checkForTheGameHoriZontally(currentPlayer.letter)
+                        || board.checkForTheGameVertically(currentPlayer.letter)
+                        || board.checkForTheGameDiagonally(currentPlayer.letter)) {
+                    System.out.println(currentPlayer.name + " won the game...!");
                     break;
                 }
+                isBoardFilled = board.isTheBoardFilled();
                 if (isBoardFilled) {
                     System.out.println("Game is tied");
                     break;
@@ -150,12 +157,10 @@ class Game {
                 System.out.println(e.getMessage());
                 continue;
             }
-            if (current == p1) {
-                current = p2;
-                currentChar = 'O';
+            if (currentPlayer == player1) {
+                currentPlayer = player2;
             } else {
-                current = p1;
-                currentChar = 'X';
+                currentPlayer = player1;
             }
         }
     }
