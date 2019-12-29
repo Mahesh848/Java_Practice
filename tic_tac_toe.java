@@ -7,7 +7,13 @@ class GridException extends Exception {
 }
 
 class GameBoard {
-    char[][] grid = new char[3][3];
+    char[][] grid;
+    int size;
+
+    GameBoard(int size) {
+        this.size = size;
+        grid = new char[size][size];
+    }
 
     void fillTheBoardPosition(int x, int y, char player) {
         this.grid[x][y] = player;
@@ -15,14 +21,14 @@ class GameBoard {
 
     boolean checkForTheGameHoriZontally(char player) {
         int count;
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < this.size; i++) {
             count = 0;
-            for (int j = 0; j < 3; j++) {
+            for (int j = 0; j < this.size; j++) {
                 if (grid[i][j] == player) {
                     count++;
                 }
             }
-            if (count == 3)
+            if (count == this.size)
                 return true;
         }
         return false;
@@ -30,14 +36,14 @@ class GameBoard {
 
     boolean checkForTheGameVertically(char player) {
         int count;
-        for (int j = 0; j < 3; j++) {
+        for (int j = 0; j < this.size; j++) {
             count = 0;
-            for (int i = 0; i < 3; i++) {
+            for (int i = 0; i < this.size; i++) {
                 if (grid[i][j] == player) {
                     count++;
                 }
             }
-            if (count == 3)
+            if (count == this.size)
                 return true;
         }
         return false;
@@ -45,27 +51,27 @@ class GameBoard {
 
     boolean checkForTheGameDiagonally(char player) {
         int count = 0;
-        for (int i = 0, j = 0; i < 3 && j < 3; i++, j++) {
+        for (int i = 0, j = 0; i < this.size && j < this.size; i++, j++) {
             if (grid[i][j] == player) {
                 count++;
             }
         }
-        if (count == 3)
+        if (count == this.size)
             return true;
         count = 0;
-        for (int i = 0, j = 2; i < 3 && j >= 0; i++, j--) {
+        for (int i = 0, j = this.size-1; i < this.size && j >= 0; i++, j--) {
             if (grid[i][j] == player) {
                 count++;
             }
         }
-        if (count == 3)
+        if (count == this.size)
             return true;
         return false;
     }
 
     boolean isTheBoardFilled() {
-        for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 3; j++) {
+        for (int i = 0; i < this.size; i++) {
+            for (int j = 0; j < this.size; j++) {
                 if (this.grid[i][j] == '\u0000') {
                     return false;
                 }
@@ -75,20 +81,24 @@ class GameBoard {
     }
 
     void printTheBoard() {
-        for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 3; j++) {
+        for (int i = 0; i < this.size; i++) {
+            for (int j = 0; j < this.size; j++) {
                 System.out.print(" ");
                 if (this.grid[i][j] != '\u0000') {
                     System.out.print(this.grid[i][j]);
                 } else {
                     System.out.print(" ");
                 }
-                if (j < 2)
+                if (j < this.size - 1)
                     System.out.print(" | ");
             }
             System.out.println();
-            if (i < 2)
-                System.out.println("-------------");
+            if (i < this.size - 1){
+                for(int k=0; k<this.size; k++) {
+                    System.out.print("-----");
+                }
+                System.out.println();
+            }
         }
     }
 }
@@ -102,7 +112,7 @@ class Player {
         int arr[] = new int[2];
         arr[0] = in.nextInt();
         arr[1] = in.nextInt();
-        if ((arr[0] == 1 || arr[0] == 2 || arr[0] == 3) && (arr[1] == 1 || arr[1] == 2 || arr[1] == 3)) {
+        if (arr[0] >= 1 && arr[0] <= board.size && arr[1] >= 1 && arr[1] <= board.size) {
             if (board.grid[arr[0] - 1][arr[1] - 1] != '\u0000') {
                 throw new GridException("You entered the position which is not empty");
             }
@@ -117,7 +127,7 @@ class Game {
     public static void main(String[] args) {
         Scanner in = new Scanner(System.in);
 
-        GameBoard board = new GameBoard();
+        GameBoard board = new GameBoard(3);
         boolean isBoardFilled;
         Player currentPlayer, player1, player2;
         player1 = new Player();
