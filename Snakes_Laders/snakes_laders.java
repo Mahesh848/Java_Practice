@@ -1,21 +1,11 @@
 import java.util.*;
 
-class Coordinate {
-    int x;
-    int y;
-
-    Coordinate(int x, int y) {
-        this.x = x;
-        this.y = y;
-    }
-}
-
 class Lader {
     String name;
-    Coordinate start;
-    Coordinate end;
+    int start;
+    int end;
 
-    Lader(String name, Coordinate start, Coordinate end) {
+    Lader(String name, int start, int end) {
         this.name = name;
         this.start = start;
         this.end = end;
@@ -24,10 +14,10 @@ class Lader {
 
 class Snake {
     String name;
-    Coordinate start;
-    Coordinate end;
+    int start;
+    int end;
 
-    Snake(String name, Coordinate start, Coordinate end) {
+    Snake(String name, int start, int end) {
         this.name = name;
         this.start = start;
         this.end = end;
@@ -43,18 +33,18 @@ class GameBoard {
         this.snakes = snakes;
     }
 
-    Snake checkForTheSnakeInTheBox(Coordinate box) {
+    Snake checkForTheSnakeInTheBox(int box) {
         for (Snake snake : this.snakes) {
-            if (box.x == snake.start.x && box.y == snake.start.y) {
+            if (box == snake.start) {
                 return snake;
             }
         }
         return null;
     }
 
-    Lader checkForTheLaderInTheBox(Coordinate box) {
+    Lader checkForTheLaderInTheBox(int box) {
         for (Lader lader : this.laders) {
-            if (box.x == lader.start.x && box.y == lader.start.y) {
+            if (box == lader.start) {
                 return lader;
             }
         }
@@ -63,52 +53,24 @@ class GameBoard {
 }
 class Player {
     String name;
-    Coordinate position;
+    int position;
+    boolean won;
 
-    Player(String name, Coordinate position) {
+    Player(String name, int position, boolean won) {
         this.name = name;
         this.position = position;
+        this.won = won;
     }
 
-    void setThePosition(int num) {
-        int x = this.position.x;
-        int y = this.position.y;
-        if (this.position.x % 2 == 0) {
-            int diff = 9 - this.position.y;
-            if (num > diff) {
-                this.position.y  += diff;
-                num -= diff;
-                this.position.x++;
-                num--;
-                if (num > 0) {
-                    this.position.y -= num;
-                }
-            } else {
-                this.position.y += num;
-            }
-        } else {
-            if (num > this.position.y) {
-                int diff = num - this.position.y;
-                this.position.y = 0;
-                num -= diff;
-                this.position.x++;
-                num--;
-                if (num > 0) {
-                    this.position.y += num;
-                }
-            } else {
-                this.position.y -= num;
-            }
-        }
-        if (this.position.x >= 10) {
-            this.position.x = x;
-            this.position.y = y;
+    void moveThePosition(int num) {
+        int diff = 100 - this.position;
+        if (num <= diff) {
+            this.position = this.position + num;
         }
     }
 
-    void setThePosition(Coordinate position) {
-        this.position.x = position.x;
-        this.position.y = position.y;
+    void setThePosition(int position) {
+        this.position = position;
     }
 
     int rollTheDice() {
@@ -121,23 +83,23 @@ class SnakesLadersGame {
     
     List<Snake> initializeSnakes() {
         List<Snake> snakes = new ArrayList<Snake>();
-        snakes.add(new Snake("Snake1",new Coordinate(1, 4), new Coordinate(0, 7)));
-        snakes.add(new Snake("Snake2", new Coordinate(5, 8), new Coordinate(2, 7)));
-        snakes.add(new Snake("Snake3", new Coordinate(7, 2), new Coordinate(2, 4)));
-        snakes.add(new Snake("Snake4", new Coordinate(9, 7), new Coordinate(8, 8)));
-        snakes.add(new Snake("Snake5", new Coordinate(9, 5), new Coordinate(7, 5)));
-        snakes.add(new Snake("Snake6", new Coordinate(9, 1), new Coordinate(2, 0)));
+        snakes.add(new Snake("Snake1", 16, 8));
+        snakes.add(new Snake("Snake2", 52, 28));
+        snakes.add(new Snake("Snake3", 78, 25));
+        snakes.add(new Snake("Snake4", 93, 89));
+        snakes.add(new Snake("Snake5", 95, 75));
+        snakes.add(new Snake("Snake6", 99, 21));
         return snakes;
     }
 
     List<Lader> initializeLaders() {
         List<Lader> laders = new ArrayList<Lader>();
-        laders.add(new Lader("Lader1", new Coordinate(0, 1), new Coordinate(3, 4)));
-        laders.add(new Lader("Lader2", new Coordinate(0, 3), new Coordinate(2, 6)));
-        laders.add(new Lader("Lader3", new Coordinate(0, 8), new Coordinate(3, 9)));
-        laders.add(new Lader("Lader4", new Coordinate(4, 6), new Coordinate(8, 3)));
-        laders.add(new Lader("Lader5", new Coordinate(6, 9), new Coordinate(8, 6)));
-        laders.add(new Lader("Lader6", new Coordinate(7, 9), new Coordinate(9, 9)));
+        laders.add(new Lader("Lader1", 2, 45));
+        laders.add(new Lader("Lader2", 4, 27));
+        laders.add(new Lader("Lader3", 9, 31));
+        laders.add(new Lader("Lader4", 47, 84));
+        laders.add(new Lader("Lader5", 70, 87));
+        laders.add(new Lader("Lader6", 71, 91));
         return laders;
     }
 
@@ -151,16 +113,22 @@ class SnakesLadersGame {
 
         GameBoard gameBoard = new GameBoard(laders, snakes);
 
-        System.out.print("Enter Player1 name: ");
-        String player1_name = in.next();
-        System.out.print("Enter Player2 name: ");
-        String player2_name = in.next();
+        System.out.print("Enter no.of players: ");
+        int noOfPlayers = in.nextInt();
+        int noOfWinners = 0;
 
-        Player player1 = new Player(player1_name, new Coordinate(0, 0));
-        Player player2 = new Player(player2_name, new Coordinate(0, 0));
+        Player players[] = new Player[noOfPlayers];
 
-        Player currentPlayer = player1;
-        int currentPosition_x, currentPosition_y;
+        for (int i=0; i<noOfPlayers; i++) {
+            System.out.print("Enter Player" + (i+1) + " name: ");
+            String player_name = in.next();
+            players[i] = new Player(player_name, 0, false);
+
+        }
+
+        int currentPlayerIndex = 0;
+        Player currentPlayer = players[currentPlayerIndex];
+        int currentPosition;
 
         String str = in.nextLine();
 
@@ -171,43 +139,53 @@ class SnakesLadersGame {
                 int numOnDice = currentPlayer.rollTheDice();
                 System.out.println("Your number on dice: " + numOnDice);
 
-                currentPosition_x = currentPlayer.position.x;
-                currentPosition_y = currentPlayer.position.y;
-                currentPlayer.setThePosition(numOnDice);
+                currentPosition = currentPlayer.position;
+                currentPlayer.moveThePosition(numOnDice);
                 
                 Lader lader = gameBoard.checkForTheLaderInTheBox(currentPlayer.position);
                 if (lader != null) {
                     currentPlayer.setThePosition(lader.end);
-                    System.out.println("You have climbed a ladder from (" + lader.start.x + "," + lader.start.y + ") TO (" + lader.end.x + "," + lader.end.y + ")");
+                    System.out.format("%s ,You climbed a ladder from %d to %d\n",currentPlayer.name, lader.start, lader.end);
                     continue;
                 }
                 
                 Snake snake = gameBoard.checkForTheSnakeInTheBox(currentPlayer.position);
                 if (snake != null) {
                     currentPlayer.setThePosition(snake.end);
-                    System.out.println("You have eaten by a snake from (" + snake.start.x + "," + snake.start.y + ") TO (" + snake.end.x + "," + snake.end.y + ")");
+                    System.out.format("%s ,You have eaten by a snake from %d to %d\n",currentPlayer.name, snake.start, snake.end);
                 }
 
-                System.out.println("Your current position: (" + currentPlayer.position.x + "," + currentPlayer.position.y + ")");
+                System.out.format("%s Your current position: %d\n", currentPlayer.name, currentPlayer.position);
 
-                if (numOnDice == 6 && (currentPosition_x != currentPlayer.position.x || currentPosition_y != currentPlayer.position.y)) {
+                if (numOnDice == 6 && currentPosition != currentPlayer.position) {
                     continue;
                 }
 
-                if (currentPlayer.position.x == 9 && currentPlayer.position.y == 0) {
+                if (currentPlayer.position == 100) {
                     System.out.println(currentPlayer.name + " Won the match!");
-                    break;
+                    noOfWinners++;
+                    currentPlayer.won = true;
+                    if (noOfWinners == noOfPlayers - 1) {
+                        break;
+                    }
                 }
                 
             } else {
                 continue;
             }
 
-            if(currentPlayer == player1) {
-                currentPlayer = player2;
+            if(currentPlayerIndex == noOfPlayers - 1) {
+                currentPlayerIndex = 0;
             } else {
-                currentPlayer = player1;
+                currentPlayerIndex++;
             }
+            while (players[currentPlayerIndex].won) {
+                currentPlayerIndex++;
+                if (currentPlayerIndex == noOfPlayers) {
+                    currentPlayerIndex = 0;
+                }
+            }
+            currentPlayer = players[currentPlayerIndex];
         }
         
 
